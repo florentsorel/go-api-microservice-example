@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/tracker-tv/actor-api/internal/handler"
-	"github.com/tracker-tv/actor-api/internal/repository"
 	"github.com/tracker-tv/actor-api/internal/service"
 
 	"github.com/jackc/pgx/v5"
@@ -44,8 +43,7 @@ func main() {
 	defer db.Close(context.Background())
 	logger.Info("database connection pool established")
 
-	r := repository.NewRepository(db)
-	s := service.New(r)
+	s := service.New(db)
 
 	mux := http.NewServeMux()
 	h := handler.NewHandler(logger, s)

@@ -1,16 +1,17 @@
 package service
 
 import (
+	"github.com/jackc/pgx/v5"
 	"github.com/tracker-tv/actor-api/internal/repository"
 )
 
 type Service struct {
-	ActorService ActorService
+	ActorService ActorServiceInterface
 }
 
-func New(r repository.Repository) *Service {
-	actorRepository := repository.NewRepository(r.DB)
+func New(db *pgx.Conn) *Service {
+	repo := repository.NewRepository(db)
 	return &Service{
-		ActorService: ActorService{r: &actorRepository},
+		ActorService: &actorService{r: &repo},
 	}
 }
