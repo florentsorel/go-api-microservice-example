@@ -8,10 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/tracker-tv/actor-api/internal/handler"
-	"github.com/tracker-tv/actor-api/internal/service"
-
 	"github.com/jackc/pgx/v5"
+	"github.com/tracker-tv/actor-api/internal/actors"
 )
 
 type config struct {
@@ -43,11 +41,11 @@ func main() {
 	defer db.Close(context.Background())
 	logger.Info("database connection pool established")
 
-	s := service.New(db)
+	repo := actors.NewActorRepository(db)
+	s := actors.NewActorService(repo)
+	h := actors.NewActorHandler(logger, s)
 
 	mux := http.NewServeMux()
-	h := handler.NewHandler(logger, s)
-	mux.HandleFunc("/v1/actors", h.GetActors)
 	mux.HandleFunc("/v1/actors/{id}", h.GetActor)
 
 	logger.Info("starting server on port 8080")
@@ -56,7 +54,6 @@ func main() {
 		logger.Error("error starting server", err)
 		os.Exit(1)
 	}
-
 }
 
 func openDB(cfg config) (*pgx.Conn, error) {
